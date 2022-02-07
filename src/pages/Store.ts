@@ -10,7 +10,13 @@ export const i_state = {
     auth:                        false,
     route:                          "",
     login:                          {
-        code: "", name: "",  email : "", status: false, image: ""
+        code: "", name: "",  email : "", status: false, image: "",
+        person:                         {
+            ПолноеИмя:          "",           
+            Имя:                "",
+            Отчество:           "",
+            Фамилия:            "",
+        },
     },
     partners:                       [],
     scans:                          [],      

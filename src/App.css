@@ -211,6 +211,7 @@
 
 .flex {
     display: flex;
+    align-items: center;
 }
 .fl-right {   justify-content: right;}
 .fl-space {   justify-content: space-between;}

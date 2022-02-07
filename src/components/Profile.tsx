@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { getData, getData1C, Store } from "../pages/Store";
+import { getData1C, Store } from "../pages/Store";
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { Camera, CameraResultType } from '@capacitor/camera';
-import { IonAvatar, IonButton, IonCardContent, IonCol, IonGrid, IonIcon, IonInput, IonItem
-    , IonList, IonLoading, IonRow, IonText, IonThumbnail } from "@ionic/react";
-import { arrowBackOutline, bagHandleOutline, cameraOutline, cloudDownloadOutline, exitOutline, headsetOutline, informationCircleOutline, mailUnreadOutline
-  , personCircleOutline, shieldCheckmarkOutline } from "ionicons/icons";
+import { IonButton, IonCardContent, IonCol, IonIcon
+    , IonLoading, IonRow, IonText } from "@ionic/react";
+import { arrowBackOutline, chevronForwardOutline, leafOutline } from "ionicons/icons";
 import './Profile.css'
 import { useHistory } from "react-router";
+import { FioSuggestions } from 'react-dadata';
+import 'react-dadata/dist/react-dadata.css';
+
 
 
 defineCustomElements(window)
@@ -28,9 +30,9 @@ async function    takePicture() {
 
   
 export function   Profile():JSX.Element {
-    const [load , setLoading] = useState(false)
-    const [login, setLogin] = useState<any>(Store.getState().login);
-
+    const [load , setLoading]   = useState(false)
+    const [login, setLogin]     = useState<any>(Store.getState().login);
+    const [upd, setUpd] = useState(0)
     let hist = useHistory()
 
     Store.subscribe({num: 51, type: "login", func: ()=>{
@@ -80,83 +82,39 @@ export function   Profile():JSX.Element {
         <IonLoading isOpen = { load } message = "Подождите" />
         <IonCardContent>
           <div className="pr-container">
-            <div className="p-card">
-                <img src = { login.image } alt="" />
-                <div className="btn-add-photo">
-                    <IonButton className="pr-btn" fill="clear"
-                      onClick = {()=>{
-                        getFoto()    
-                      }}
-                    >
-                      <IonIcon slot = "icon-only" icon={ cameraOutline }/>
-                    </IonButton>
-                    
-                </div>
-            </div>
-            
-            <IonList class="ml-1 mr-2">
-              <IonItem>
-                <IonInput
-                  placeholder = "ФИО, псевдоним"
-                  onIonChange={(e)=>{
-                    Store.dispatch({type: "login", name: e.detail.value as string})
-                    login.name = e.detail.value as string
-                    setLogin(login)
-                  }}
-                  value = { login.name }
-                />
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  placeholder = "Эл. почта"
-                  onIonChange={(e)=>{
-                    Store.dispatch({type: "login", email: e.detail.value as string})
-                    login.email = e.detail.value as string
-                    setLogin(login)
-                  }}          
-                  value = { login.email }
-                />
-              </IonItem>
-              {/* <IonItem>
-                <IonInput
-                  placeholder = "Адрес"
-                  onIonChange={(e)=>{
-                    Store.dispatch({type: "login", address: e.detail.value as string})
-                    login.address = e.detail.value as string
-                    setLogin(login)
-                  }}          
-                  value = { login.address }
-                />
-              </IonItem> */}
-            </IonList>
-            <IonRow>
-            <div className="btn-r">
-                  <button
-                    slot="end"
-                    onClick={()=>{
-                      saveProfile()
-                      //Store.dispatch({type: "route", route: "/page/root"})
-                      hist.push("/page/Заявки")
-                    }}  className="orange-clr-bg"
-                  >
-                    Сохранить
-                  </button>
-            </div>
-            <div className="btn-r">
-                  <button
-                    slot="end"
-                    onClick={()=>{
-                      saveProfile()
-                      hist.push("/page/Заявки")
-//                      Store.dispatch({type: "route", route: "/page/root"})
-                    }}  className="orange-clr-bg"
-                  >
-                    Выход
-                  </button>
-            </div>
-            
+            <div className="ml-1 mr-2">
+              <div>Введите ФИО</div>
+              <div>
+                <FioSuggestions 
+                    token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
+                    hintText = "ФИО, Наименование"
+                    onChange={(e)=>{
 
-            </IonRow>
+                      login.person.ПолноеИмя = e?.value
+                      login.person.Имя      = e?.data.name
+                      login.person.Фамилия  = e?.data.surname
+                      login.person.Отчество = e?.data.patronymic
+                      
+                      console.log(login)
+                      setUpd(upd + 1)
+                    }} 
+                />
+              </div>
+              <div className="p-div-1">
+                <div className="flex fl-space">
+                  <div>Фамилия</div>
+                  <div> { login.person.Фамилия } </div>
+                </div>
+                <div className="flex fl-space mt-1">
+                  <div>Имя</div>
+                  <div> { login.person.Имя } </div>
+                </div>
+                <div className="flex fl-space mt-1">
+                  <div>Отчество</div>
+                  <div> { login.person.Отчество } </div>
+                </div>
+              </div>
+            </div>
           </div>
         </IonCardContent>
        
@@ -170,119 +128,29 @@ export function   Options():JSX.Element {
   const [alert,   setAlert] = useState(false)
 
   function          Person():JSX.Element{
-      let login = Store.getState().login
-      
-      let hist = useHistory();
-      let elem = <>
-        
-          <IonCardContent>
-            <IonItem class=" mb-1" detail lines="full"
-              onClick = {()=>{
-                hist.push("/page/Профиль")
-              }}
-            >
-              <IonItem lines="none">
-                <IonAvatar slot="start">
-                  <img src={ login.image === "" ? personCircleOutline : login.image } 
-                  alt=""
-                />
-                </IonAvatar>
-                <IonGrid>
-                  <IonRow>
-                    <IonCol>
-                      <IonInput placeholder="ФИО, псевдоним" disabled
-                        value = { login.name }  
-                      >
-                      </IonInput> 
-                    </IonCol>           
-                  </IonRow>
-                  <IonRow>
-                    <IonCol>
-                    <IonInput placeholder="Телефон" disabled
-                      value = { login.code }  
-                    >
-                    </IonInput>
-                    </IonCol>           
-                  </IonRow>
-                </IonGrid> 
-              </IonItem>
-            </IonItem>
-            <IonItem class="mt-1 mb-1 op-item" lines = "none" detail
-              onClick={()=>{
-                Store.dispatch({type: "route", route: "/page1/orders"})
-              }}
-            >
-                <IonThumbnail class="op-thumb" color="blue" slot="start">
-                  <IonIcon class= "op-icon" icon = { bagHandleOutline }/>
-                </IonThumbnail>
-                <IonText> Мои заказы </IonText>
-            </IonItem>
-            <IonItem class="mt-1 mb-1 op-item" lines = "none" detail
-              onClick={()=>{
-                //Store.dispatch({type: "route", route: "/menu/notifs"})
-              }}
-            >
-                <IonThumbnail class="op-thumb1" color="blue" slot="start">
-                  <IonIcon class= "op-icon" icon = { mailUnreadOutline }/>
-                </IonThumbnail>
-                <IonText> Уведомления </IonText>
-            </IonItem>
-            <IonItem class="mt-1 mb-1 op-item" lines = "none" detail
-              onClick={()=>{
-                Store.dispatch({type: "route", route: "/page1/info"})
-              }}
-            >
-                <IonThumbnail class="op-thumb2" color="blue" slot="start">
-                  <IonIcon class= "op-icon" icon = { shieldCheckmarkOutline }/>
-                </IonThumbnail>
-                <IonText> Ответы на вопросы </IonText>
-            </IonItem>
-            <IonItem class="mt-1 mb-1 op-item" lines = "none" detail
-               onClick={()=>{
-                Store.dispatch({type: "route", route: "/page1/contacts"})
-              }}             
-            >
-                <IonThumbnail class="op-thumb3" color="blue" slot="start">
-                  <IonIcon class= "op-icon" icon = { headsetOutline }/>
-                </IonThumbnail>
-                <IonText> Контакты </IonText>
-            </IonItem>
-            <IonItem class="mt-1 mb-1 op-item" lines = "none" detail
-               onClick={()=>{
-                Store.dispatch({type: "route", route: "/page1/about"})
-              }}             
-            >
-                <IonThumbnail class="op-thumb" color="blue" slot="start">
-                  <IonIcon class= "op-icon" icon = { informationCircleOutline }/>
-                </IonThumbnail>
-                <IonText> О приложении </IonText>
-            </IonItem>
-            <IonItem class="mt-1 mb-1 op-item" lines = "none" detail
-               onClick={()=>{
-               // Plugins.App.exitApp();
-                Store.dispatch({type: "auth",   auth: false})
-                Store.dispatch({type: "orders", orders: []})
-                Store.dispatch({  
-                  type:              "login",
-                  ГУИД:                    0,
-                  Телефон:                "",
-                  ФИО:                    "",
-                  элПочта:                "",
-                  Пароль:                 "",
-                  Роль:                    0,
-                  СМС:                    "", 
-                  Картинка:               "",
-              })
-                Store.dispatch({type: "route",  route: "back"})
-              }}             
-            >
-                <IonThumbnail class="op-thumb1" color="blue" slot="start">
-                  <IonIcon class= "op-icon" icon = { exitOutline }/>
-                </IonThumbnail>
-                <IonText> Выйти </IonText>
-            </IonItem>
-          </IonCardContent>
-        
+    let login = Store.getState().login
+     
+    let hist = useHistory();
+    let elem = <>
+      <div className="op-profile"
+        onClick = {()=>{
+          hist.push("Профиль")
+        }}
+      >
+        <div className="flex fl-space">
+          <img src= { login.image === "" ? "assets/person.jpg" : ""} className="p-photo"/>
+          <div>
+            <div className="mb-1"> { login.code }</div>
+            <div> { login.name }</div>
+          </div>
+              <IonIcon class="w-3 h-3" icon= { chevronForwardOutline }  slot="icon-only"
+                  color= "primary"
+              />
+        </div>    
+      </div>
+      <div className="op-item">
+          Опции
+      </div>
     </>;
     return elem
 }
