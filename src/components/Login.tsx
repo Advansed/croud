@@ -93,15 +93,6 @@ export function Login(props):JSX.Element {
         const [tires, setTires] = useState("----");
         const [value, setValue] = useState( "" )
 
-        async function load(){
-            console.log(info)
-            let res = await getData1C("Регистрация", info )
-            if(res.Код === 100) {
-                Store.dispatch( res.Данные )
-                setPage( 4 )
-            }
-        }
-
         let elem = <>
             <div className="l-content">
                 <div className="l-div">
@@ -134,7 +125,7 @@ export function Login(props):JSX.Element {
                                     let SMS = info.SMS
 
                                     if(SMS === val) {
-                                        load()
+                                        setPage( 4 )
                                     } else {
                                         setTires("----") ;
                                         setValue(""); 
@@ -172,8 +163,11 @@ export function Login(props):JSX.Element {
 
             let res = await getData1C("Авторизация", info )
             if(res.Код === 100) {
-                Store.dispatch( res.Данные )
-                Store.dispatch({type: "auth", auth: true})    
+                Store.dispatch( res.Данные.login )
+                Store.dispatch( res.Данные.person )
+                Store.dispatch( res.Данные.passport )
+                Store.dispatch({type: "auth", auth: true})   
+                console.log( res.Данные.person ) 
             } else {
                 setValue("")
                 setTires("----")
@@ -243,7 +237,9 @@ export function Login(props):JSX.Element {
 
         async function load(){
             console.log(info)
-            let res = await getData1C("Регистрация", info )
+            let res = await getData1C("Регистрация", {
+                Логин:      info 
+            } )
             if(res.Код === 100) {
                 Store.dispatch( res.Данные )
                 Store.dispatch({type: "auth", auth: true})

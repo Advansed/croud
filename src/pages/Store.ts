@@ -1,7 +1,6 @@
 import { combineReducers  } from 'redux'
 import axios from 'axios'
 import { Reducer } from 'react';
-import { Stream } from 'stream';
 
 var reducers: Array<Reducer<any, any>>;reducers = []
 
@@ -10,13 +9,13 @@ export const i_state = {
     auth:                        false,
     route:                          "",
     login:                          {
-        code: "", name: "",  email : "", status: false, image: "",
-        person:                         {
-            ПолноеИмя:          "",           
-            Имя:                "",
-            Отчество:           "",
-            Фамилия:            "",
-        },
+        code: "", name: "",  email : "", status: false, image: "", pincode: ""
+    },
+    person:                         {
+        ПолноеИмя:          "",           
+        Имя:                "",
+        Отчество:           "",
+        Фамилия:            "",
     },
     partners:                       [],
     scans:                          [],    
@@ -134,9 +133,10 @@ const                   rootReducer = combineReducers({
     auth:                      reducers[0],
     route:                     reducers[1],
     login:                     reducers[2],
-    partners:                  reducers[3],
-    scans:                     reducers[4],
-    passport:                  reducers[5],
+    person:                    reducers[3],
+    partners:                  reducers[4],
+    scans:                     reducers[5],
+    passport:                  reducers[6],
 
 })
 
@@ -171,7 +171,7 @@ export async function getProfile(phone){
 }
 
 
-let timerId;
+// let timerId;
 
 
 export async function   getOrders(){
@@ -244,7 +244,7 @@ Store.subscribe({num: 1001, type: "auth", func:()=>{
 }})
 
 async function          exec(){
-    Passport("9817 723893")
+ //   Passport("9817 723893")
 }
 
 exec();
