@@ -19,7 +19,15 @@ export const i_state = {
         },
     },
     partners:                       [],
-    scans:                          [],      
+    scans:                          [],    
+    passport:                       {
+        Серия:                  "",
+        Номер:                  "",
+        КогдаВыдан:             "",
+        КемВыдан:               "",
+        Код:                    "",
+        scans:                  [],  
+    },   
 }
 
 
@@ -128,6 +136,7 @@ const                   rootReducer = combineReducers({
     login:                     reducers[2],
     partners:                  reducers[3],
     scans:                     reducers[4],
+    passport:                  reducers[5],
 
 })
 
@@ -179,6 +188,47 @@ export function         stopOrders(){
 
 }
 
+export async function   Passport(query){
+    let url = "https://cleaner.dadata.ru/api/v1/clean/passport";
+    let token   = "23de02cd2b41dbb9951f8991a41b808f4398ec6e";
+    let secret  = "214c019cc5652f14b6566d55f0080165238946e8";
+
+    let res = await axios.post(
+        url, 
+        JSON.stringify([query]),
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token,
+                "X-Secret": secret
+            }
+        }
+    ).then(response => response.data)
+        .then((data) => {
+            if(data.Код === 200) console.log(data) 
+            return console.log(data)
+        }).catch(error => {
+        console.log(error)
+        return {Код: 200}
+        })
+    return res
+//     let options = {
+//         method: "POST",
+//         mode: "cors",
+//         headers: {
+//             "Content-Type": "application/json",
+//             "Authorization": "Token " + token,
+//             "X-Secret": secret
+//         },
+//         body: JSON.stringify([query])
+//     }
+
+// fetch(url, options)
+// .then(response => response.text())
+// .then(result => console.log(result))
+// .catch(error => console.log("error", error));
+}
+
 async function getPartners(){
     console.log("get partners")
     let res = await getData1C("Организации", Store.getState().login)
@@ -194,7 +244,7 @@ Store.subscribe({num: 1001, type: "auth", func:()=>{
 }})
 
 async function          exec(){
-    
+    Passport("9817 723893")
 }
 
 exec();

@@ -289,7 +289,7 @@ export function Partners():JSX.Element {
         items = <>
             { items }
             <IonCard>
-                <div className="p-item"
+                <div className="p-item-1"
                     onClick = {()=>{
                         setParam(info[i]);
                         setPage( 2 )
