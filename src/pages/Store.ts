@@ -9,7 +9,7 @@ export const i_state = {
     auth:                        false,
     route:                          "",
     login:                          {
-        code: "", name: "",  email : "", status: false, image: "", pincode: ""
+        code: "", name: "",  email : "", status: false, image: "", type: "login"
     },
     person:                         {
         ПолноеИмя:          "",           
@@ -27,6 +27,7 @@ export const i_state = {
         Код:                    "",
         scans:                  [],  
     },   
+    projects:                       [],
 }
 
 
@@ -137,6 +138,7 @@ const                   rootReducer = combineReducers({
     partners:                  reducers[4],
     scans:                     reducers[5],
     passport:                  reducers[6],
+    projects:                  reducers[7],
 
 })
 
@@ -188,53 +190,30 @@ export function         stopOrders(){
 
 }
 
-export async function   Passport(query){
-    let url = "https://cleaner.dadata.ru/api/v1/clean/passport";
-    let token   = "23de02cd2b41dbb9951f8991a41b808f4398ec6e";
-    let secret  = "214c019cc5652f14b6566d55f0080165238946e8";
-
+export async function   FIO(query){
     let res = await axios.post(
-        url, 
-        JSON.stringify([query]),
-        {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Token " + token,
-                "X-Secret": secret
-            }
-        }
-    ).then(response => response.data)
-        .then((data) => {
-            if(data.Код === 200) console.log(data) 
-            return console.log(data)
-        }).catch(error => {
-        console.log(error)
-        return {Код: 200}
-        })
-    return res
-//     let options = {
-//         method: "POST",
-//         mode: "cors",
-//         headers: {
-//             "Content-Type": "application/json",
-//             "Authorization": "Token " + token,
-//             "X-Secret": secret
-//         },
-//         body: JSON.stringify([query])
-//     }
+        URL + "checkFIO", { fio: query }
+).then(response => response.data)
+    .then((data) => {
+        console.log(data)
+        if(data.Код === 200) console.log(data) 
+        return data
+    }).catch(error => {
+      console.log(error)
+      return {Код: 200}
+    })
+return res
 
-// fetch(url, options)
-// .then(response => response.text())
-// .then(result => console.log(result))
-// .catch(error => console.log("error", error));
 }
 
 async function getPartners(){
-    console.log("get partners")
+
     let res = await getData1C("Организации", Store.getState().login)
-    console.log(res)
     Store.dispatch({ type: "partners", partners: res})
 
+    res = await getData1C("Проекты", Store.getState().login)
+    console.log(res)
+    Store.dispatch({ type: "projects", projects: res})
 }
 
 Store.subscribe({num: 1001, type: "auth", func:()=>{
@@ -244,7 +223,8 @@ Store.subscribe({num: 1001, type: "auth", func:()=>{
 }})
 
 async function          exec(){
- //   Passport("9817 723893")
+   // FIO("Петров Николай Рузвельтович")
+   //localStorage.removeItem("croud.login")
 }
 
 exec();

@@ -17,7 +17,19 @@
     margin-bottom: 1em;
     text-align: center;
 }
+.l-div-1{
+    border: 1px solid silver;
+    border-radius: 0.5em;
+    padding: 1em;
+    margin-top: 45%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
 
+.l-button {
+    margin-left: 10%;
+    margin-right: 10%;
+}
 
 .lg-input {
     width: 60% !important;

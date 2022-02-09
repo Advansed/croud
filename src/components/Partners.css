@@ -6,6 +6,16 @@
     margin-bottom: 1em;
 }
 
+.p-div-1 {
+    padding: 1em;
+    margin: 1em;
+    border-radius: 0.5em;
+    border: 1px solid silver;
+}
+.p-icon {
+    width: 1.5em;
+    height: 1.5em;
+}
 .p-logotip{
     height: 5em;
     width: 5em;
@@ -13,14 +23,15 @@
 
 .p-item {
     display: flex;
-    /* height: 3em; */
-    margin-top: 1em;
-    margin-left: 1em;
-    margin-right: 1em;
-
-    /* justify-content: center; */
     align-items: center;
+    font-size: 0.9em;
+}
 
+.p-item {
+    display: flex;
+    align-items: center;
+    overflow-x: wrap;
+    font-size: 0.9em;
 }
 
 .p-item-1 {

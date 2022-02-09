@@ -1,10 +1,10 @@
 import { IonButton, IonCard, IonIcon, IonInput } from '@ionic/react'
-import { addCircleOutline, barcodeOutline, cameraOutline, flagOutline, homeOutline, personCircleOutline, save } from 'ionicons/icons'
+import { addCircleOutline, barcodeOutline, cameraOutline, homeOutline, personCircleOutline } from 'ionicons/icons'
 import { useEffect, useState } from 'react'
 import { getData1C, Store } from '../pages/Store'
 import './Partners.css'
-import { AddressSuggestions, PartySuggestions } from 'react-dadata';
 import 'react-dadata/dist/react-dadata.css';
+import ReactDadataBox from 'react-dadata-box';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
@@ -25,13 +25,12 @@ async function    takePicture() {
   }
 
 export function Partners():JSX.Element {
-    const [info, setInfo] = useState( Store.getState().partners )
-    const [page, setPage] = useState( 0 )
-    const [param, setParam] = useState<any>()
+    const [info,    setInfo] = useState( Store.getState().partners )
+    const [page,    setPage] = useState( 0 )
+    const [param,   setParam] = useState<any>()
 
     useEffect(()=>{
         setInfo( Store.getState().partners )
-        console.log( Store.getState().partners )
     }, [])
 
     function Footer():JSX.Element {
@@ -41,6 +40,22 @@ export function Partners():JSX.Element {
                     <IonButton
                         fill = "outline"
                         onClick = {()=>{
+                            setParam({
+                                Код:                          ""  
+                              , Наименование:                 ""
+                              , ИНН:                          ""
+                              , КПП:                          ""
+                              , Адрес:                        ""
+                              , ОГРН:                         ""
+                              , Руководитель:                 ""
+                              , Банк:             {
+                                  БИК:                        "",
+                                  КоррСчет:                   "",
+                                  Банк:                       "",
+                                  НомерСчета:                 "",    
+                              }
+                              , Сканы:                        []
+                          })
                             setPage( 1 )
                         }}
                     >
@@ -58,58 +73,186 @@ export function Partners():JSX.Element {
         return elem
     }
 
-    function AddPartner():JSX.Element {
-        const [org, setOrg] = useState<any>({
-              name:             ""
-            , inn:              ""
-            , kpp:              ""
-            , address:          ""
-            , ogrn:             ""
-            , management:       ""
-        })
+    function Partner():JSX.Element {
+        const [org1 ] = useState( param )
+        const [upd,     setUpd] = useState(0)
+
+        async function getFoto1(){
+            const imageUrl = await takePicture();
+            org1.Картинка = imageUrl;
+            setUpd(upd + 1)   
+        }
+
+        async function getFoto2(){
+            const imageUrl = await takePicture();
+            org1.Сканы = [...org1.Сканы, imageUrl ]
+            setUpd(upd + 1)
+        }
+
+        async function save(){
+            console.log(org1)
+            getData1C("СохранитьОрганизацию", {
+                Телефон:        Store.getState().login.code,    
+                Организация:    org1,
+            })
+
+        }
+
+      
+        function SetOrg():JSX.Element {
+            const [edit,    setEdit] = useState( false )
+            const [org,     setOrg] = useState( org1 )
+            let elem = <>
+                <div className={ edit ? "p-item mt-2" : "hidden"}
+                    onDoubleClick = {()=>{
+                        setEdit(!edit);
+                    }}
+                >
+                        <ReactDadataBox 
+                            token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
+                            placeholder = "ИНН, Наименование"
+                            type = "party"
+                            onChange={(e)=>{
+                                
+                                org.Наименование =     e?.data.name.full_with_opf
+                                org.ИНН =              e?.data.inn
+                                org.КПП =              e?.data.kpp
+                                org.Адрес =            e?.data.address.value
+                                org.ОГРН =             e?.data.ogrn
+                                org.Руководитель =     e?.data.management.name
+                                org.Картинка =         "" 
+                                setOrg(org)
+                                setEdit(!edit)
+                            }} 
+                        />
+                </div>
+                <div className={ "p-div-1" }
+                    onClick = {()=>{
+                        setEdit(!edit);
+                    }}
+                >
+                    <div className="p-item">
+                        <div className="ml-1">
+                            { org.Наименование }
+                        </div>
+                    </div>
+                    <div className="p-item mt-1">
+                        <IonIcon icon = { barcodeOutline } class= "p-icon" color="primary"/>
+                        <div className="ml-1">
+                            { "ИНН: " + org.ИНН + " КПП:" + org.КПП}
+                        </div>
+                    </div>
+                    <div className="p-item mt-1">
+                        <div className="w-2">
+                            <IonIcon icon = { homeOutline } class= "p-icon" color="primary"/>
+                        </div>
+                        <div className="ml-1">
+                            { org.Адрес }
+                        </div>
+                    </div>
+                    <div className="p-item mt-1">
+                        <div className="w-2">
+                            <IonIcon icon = { personCircleOutline } class= "p-icon" color="primary"/>
+                        </div>
+                        <div className="ml-1">
+                            { org.Руководитель }
+                        </div>
+                    </div>
+                </div>
+            </>
+            return elem
+        }
+
+        function SetBank():JSX.Element {
+            const [edit,    setEdit] = useState( false )
+            const [bank ] = useState( org1.Банк )
+
+            let elem = <>
+                <div className={ edit ? "p-item mt-2" : "hidden"}
+                    onDoubleClick = {()=>{
+                        setEdit(!edit);
+                    }}
+                >
+                        <ReactDadataBox 
+                            token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
+                            placeholder = "БИК, Наименование"
+                            type = "bank"
+                            onChange={(e)=>{
+                                bank.БИК = e.data.bic
+                                bank.Банк = e.value
+                                bank.КоррСчет = e.data.correspondent_account
+                                setEdit(!edit)
+                            }} />
+                </div>
+                <div className={ "p-div-1" }
+                    onClick = {()=>{
+                        setEdit(!edit);
+                    }}
+                >
+                    <div className="p-item">
+                        <div className="ml-1">
+                            { bank.БИК +", " + bank.Банк }
+                        </div>
+                    </div>
+                    <div className="p-item mt-1">
+                        <IonIcon icon = { barcodeOutline } class= "p-icon" color="primary"/>
+                        <div className="ml-1">
+                            { "КоррСчет: " + bank.КоррСчет}
+                        </div>
+                    </div>
+                    <div className="p-item mt-1">
+                        <div className="w-2">
+                            <IonIcon icon = { barcodeOutline } class= "p-icon" color="primary"/>
+                        </div>
+                        <div className="ml-1"> 
+                            <IonInput
+                                type = "number"
+                                value = { bank.НомерСчета }
+                                placeholder = "Номер счета"
+                                onIonChange = {(e)=>{
+                                    bank.НомерСчета = e.detail.value as string
+                                    //setUpd(upd + 1)
+                                }}
+                                onClick = {(e)=>{e.stopPropagation()}}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </>
+            return elem
+        }
+
+        function SetScan():JSX.Element {
+            let elem  = <>
+                <div className={ "p-div-1" }>
+                    <div className="p-item">
+                        <div className="ml-1 flex fl-space w-100">
+                            <IonIcon icon= { cameraOutline } class="w-2 h-2" color="primary"/>
+                            <div>Сканируйте документы</div>
+                            <IonButton
+                                fill ="outline"
+                                onClick={()=>{
+                                    getFoto2()
+                                }}
+                            >...</IonButton>
+                        </div>
+                    </div>
+                    <div className="p-item fl-wrap mt-1">
+                        { org1?.Сканы.map((e, ind) =>{
+                            return <img key = { ind as number } src = { e } alt="" className="w-4 h-4 ml-1 mt-1"/>
+                        })}
+                    </div>
+                </div>
+            </>
+
+            return elem
+        }
 
         let elem = <>
-            <div className="p-item">
-                <img src="assets/org.png" className="h-3 w-3"/>
-                    <PartySuggestions 
-                        token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
-                        onChange={(e)=>{
-                            let org: any = {
-                                  name:         e?.data.name.full_with_opf
-                                , inn:          e?.data.inn
-                                , kpp:          e?.data.kpp
-                                , address:      e?.data.address.value
-                                , ogrn:         e?.data.ogrn
-                                , management:   e?.data.management?.name
-                                , image:        "" 
-                            }
-                            setOrg(org)
-                        }} />
-            </div>
-            <div className={ org.inn === "" ? "hidden" : ""}>
-                <div className="p-item">
-                    <div className="ml-1">
-                        { org.name }
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { barcodeOutline } class= "w-2 h-2"/>
-                    <div className="ml-1">
-                        { "ИНН: " + org.inn + " КПП:" + org.kpp}
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { homeOutline } class= "w-2 h-2"/>
-                    <div className="ml-1">
-                        { org.address }
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { personCircleOutline } class= "w-2 h-2"/>
-                    <div className="ml-1">
-                        { org.management }
-                    </div>
-                </div>
+            <SetOrg />
+            <SetBank />
+            <SetScan />
+            <div className="mt-1 p-div-1">
                 <div className="flex fl-space mr-1 ml-1" >
                     <IonButton
                         fill="outline"
@@ -118,166 +261,23 @@ export function Partners():JSX.Element {
                             setPage( 0 )
                         }}
                     >
-                        Отмена
+                        Вернуться
                     </IonButton>
                     <IonButton
                         fill="outline"
                         color = "success"
                         onClick ={()=>{
-                            Store.dispatch({type: "partners", partners: [...info, org]})
-                            setInfo([...info, org])
+                            save();
+                            if(org1.Код === "") {
+                                Store.dispatch({type: "partners", partners: [...info, org1]})
+                                setInfo([...info, org1])
+                            }
                             setPage( 0 )
                         }}
                     >
-                        Добавить
+                        Сохранить
                     </IonButton>
                 </div>
-            </div>
-        </>
-    
-        return elem
-    }
-    
-    function OpenPartner(props):JSX.Element {
-        const [org, setOrg] = useState<any>({
-            name:               ""
-          , inn:                ""
-          , kpp:                ""
-          , address:            ""
-          , ogrn:               ""
-          , management:         ""
-        })     
-        const [upd, setUpd] = useState(0)
-        const [info, setInfo] = useState<any>([])
-
-
-        useEffect(()=>{
-            setOrg( props.info )
-            let jarr: any = []
-            let scans = Store.getState().scans
-            scans.forEach(elem => {
-                if(elem.inn === props.info.inn) 
-                jarr = [...jarr, elem];
-            });
-            setInfo( jarr ) 
-        },[])
-
-        async function getFoto1(){
-            const imageUrl = await takePicture();
-            org.image = imageUrl;
-            setOrg(org);setUpd(upd + 1)   
-          }
-
-        async function getFoto2(){
-            const imageUrl = await takePicture();
-            Store.dispatch({type: "scans", scans: [...info, {inn: org.inn, image: imageUrl}]})
-            setInfo([...info, {inn: org.inn, kpp: org.kpp, image: imageUrl}])
-        }
-
-        async function save(){
-            let res = getData1C("СохранитьОрганизацию",{
-                Телефон:                Store.getState().login.code,
-                ИНН:                    org.inn,
-                КПП:                    org.kpp,
-                Наименование:           org.name,
-                ПолноеНаименование:     org.name,
-                Адрес:                  org.address,
-                Руководитель:           org.management,
-                ОГРН:                   org.ogrn,
-                Картинка:               org.image, 
-            })
-            res = getData1C("СохранитьДокументы",{
-                Массив:         info,
-            })
-        }
-
-      
-        let elem = <>
-            <div>
-                <div className="p-item">
-                    <img src = { org.image === "" ? "assets/org.png" : org.image} className="w-4 h-4" />
-                    <div className="ml-1">
-                        { org.name }
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { barcodeOutline } class= "w-2 h-2" color="primary"/>
-                    <div className="ml-1">
-                        { "ИНН: " + org.inn + " КПП:" + org.kpp}
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { homeOutline } class= "w-2 h-2" color="primary"/>
-                    <div className="ml-1">
-                        { org.address }
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { personCircleOutline } class= "w-2 h-2" color="primary"/>
-                    <div className="ml-1">
-                        { org.management }
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { cameraOutline } class= "w-3 h-3" color="primary"/>
-                    <div className="ml-1 w-100">
-                        Добавить логотип
-                    </div>
-                    <div>
-                        <IonButton
-                            fill ="outline"
-                            onClick = {()=>{
-                                getFoto1();
-                            }}
-                        >
-                            ...
-                        </IonButton>
-                    </div>
-                </div>
-                <div className="p-item">
-                    <IonIcon icon = { cameraOutline } class= "w-3 h-3" color="primary"/>
-                    <div className="ml-1 w-100">
-                        Добавить документ
-                    </div>
-                    <div>
-                        <IonButton
-                            fill ="outline"
-                            onClick = {()=>{
-                               getFoto2();     
-                            }}
-                        >
-                            ...
-                        </IonButton>
-                    </div>
-                </div>
-                <div className="flex fl-wrap">
-                    { info.map((e)=>{
-                        return <img src = { e.image } className="w-4 h-4 ml-1 mt-1"/>
-                    })}
-                </div>
-            </div>
-            <div className="p-footer flex fl-space">
-                <IonButton
-                    fill = "outline"
-                    expand = "block"
-                    color = "warning"
-                    onClick ={() => {
-                        setPage(0)        
-                    }}
-                >
-                    Вернуться
-                </IonButton>        
-                <IonButton
-                    fill = "outline"
-                    expand = "block"
-                    color = "succes"
-                    onClick ={() => {
-                        save()
-                        setPage(0)        
-                    }}
-                >
-                    Сохранить
-                </IonButton>        
             </div>
         </>
 
@@ -295,15 +295,15 @@ export function Partners():JSX.Element {
                         setPage( 2 )
                     }}
                 >
-                    <img src = {info[i].image === "" ? "assets/org.png" : info[i].image }
+                    <img src = {info[i].Картинка === "" ? "assets/org.png" : info[i].Картинка }
                         className = "w-3 h-3"
                     />
                     <div className="ml-1">
                         <div>
-                            { info[i].inn + ( info[i].kpp !== "" ?  ("/" + info[i].kpp) : "")}
+                            { info[i].ИНН + ( info[i].КПП !== "" ?  ("/" + info[i].КПП) : "")}
                         </div>
                         <div>
-                            { info[i].name }
+                            { info[i].Наименование }
                         </div>
                     </div>
                 </div>
@@ -317,8 +317,8 @@ export function Partners():JSX.Element {
     </>
     switch(page){
         case 0:     return elem; break;
-        case 1:     return <AddPartner />
-        case 2:     return <OpenPartner  info = { param } />
+        case 1:     return <Partner />
+        case 2:     return <Partner />
         default :   return elem;
     }
     return elem

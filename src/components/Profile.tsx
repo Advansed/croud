@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import { getData1C, Store } from "../pages/Store";
-import { IonButton, IonCol, IonIcon
-    , IonInput, IonLoading, IonRow, IonText } from "@ionic/react";
-import { arrowBackOutline, cameraOutline, chevronForwardOutline, chevronBackOutline } from "ionicons/icons";
+import { IonButton, IonIcon, IonInput, IonLoading } from "@ionic/react";
+import { cameraOutline, chevronForwardOutline } from "ionicons/icons";
 import './Profile.css'
 import { useHistory } from "react-router";
-import { FioSuggestions } from 'react-dadata';
 import 'react-dadata/dist/react-dadata.css';
 import ReactDadataBox from 'react-dadata-box';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import MaskedInput from "../mask/reactTextMask";
 
 
 defineCustomElements(window)
@@ -31,7 +30,7 @@ async function    takePicture() {
   
 export function   Profile():JSX.Element {
     const [load , setLoading]   = useState(false)
-    const [login, setLogin]     = useState<any>(Store.getState().login);
+    const [login ]              = useState<any>(Store.getState().login);
     const [upd,   setUpd]       = useState(0)
     let hist = useHistory()
 
@@ -48,6 +47,33 @@ export function   Profile():JSX.Element {
   
     }
   
+    function Logotip():JSX.Element {
+      const [upd, setUpd] = useState(0)
+
+      async function getFoto(){
+        const imageUrl = await takePicture();
+        login.image  = imageUrl
+        setUpd(upd + 1)
+      }
+
+      let elem = <>
+        <div className="p-div-1 flex fl-space">
+          <img src = { login.image === "" ? "assets/person.jpg" : login.image }  className="w-4 h-4"/>
+          <div >
+            <div>{ login.code }</div>
+          </div>
+          <IonButton
+            fill = "outline"
+            onClick={()=>{
+              getFoto()
+            }}
+          >
+            <IonIcon icon={ cameraOutline } slot = "icon-only"/>
+          </IonButton>
+        </div>
+      </>
+      return elem
+    }
 
     function SetFIO():JSX.Element {
       const [ person ] = useState(Store.getState().person)
@@ -106,24 +132,11 @@ export function   Profile():JSX.Element {
                 <ReactDadataBox 
                     token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
                     type ="email" 
-                    placeholder = " Введите email "
+                    placeholder = " Введите email"
                     onChange={(e)=>{
                       login.email = e.value   
                       setUpd(upd + 1)
-                      console.log(Store.getState().login)
                   }}
-                />
-                <IonInput
-                    type = "text"
-                    placeholder = "email"
-
-                    onKeyPress = {(e)=>{
-                      if(e.key === "Enter") setEdit(false)
-                    }}
-
-                    onIonChange = {(e)=>{
-                      login.email = e.detail.value;
-                    }}
                 />
               </div>
             </div>
@@ -149,7 +162,6 @@ export function   Profile():JSX.Element {
 
       useEffect(()=>{
         setDocs(Store.getState().passport)
-        console.log(Store.getState().passport)
       },[])
 
       async function getFoto2(){
@@ -216,6 +228,7 @@ export function   Profile():JSX.Element {
           <div className="flex fl-space">
             <div>Серия:</div>
             <IonInput type="number" 
+                className = "a-right"
                 value = { docs.Серия }
                 onIonChange = {(e)=>{
                   docs.Серия = e.detail.value
@@ -226,6 +239,7 @@ export function   Profile():JSX.Element {
           <div className="flex fl-space">
             <div>Номер:</div>
             <IonInput type="number" 
+                className = "a-right"
                 value = { docs.Номер }
                 onIonChange = {(e)=>{
                   docs.Номер = e.detail.value
@@ -235,13 +249,19 @@ export function   Profile():JSX.Element {
           </div>
           <div className="flex fl-space">
             <div>Когда выдан:</div>
-            <IonInput type="date" 
-                value = { docs.КогдаВыдан }
-                onIonChange = {(e)=>{
-                  docs.КогдаВыдан = e.detail.value
-                  setUpd(upd + 1)
-                }}
-            />
+            <MaskedInput
+              mask={[ /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+              className="m-input a-right"
+              autoComplete="off"
+              value = { docs.КогдаВыдан }
+              placeholder="__-__-____"
+              id='2'
+              type='text'
+              onChange={(e: any) => {
+                let st = e.target.value;
+                docs.КогдаВыдан = st;
+              }}
+            />               
           </div>
           <div className="flex fl-space">
             <div>Кем выдан:</div>
@@ -266,6 +286,7 @@ export function   Profile():JSX.Element {
         <IonLoading isOpen = { load } message = "Подождите" />
           <div className="pr-container mt-2">
             <div className="ml-1 mr-1">
+              <Logotip />
               <SetFIO />
               <SetEmail />
               <SetDocs />
@@ -308,10 +329,10 @@ export function   Options():JSX.Element {
         }}
       >
         <div className="flex fl-space">
-          <img src= { login.image === "" ? "assets/person.jpg" : ""} alt="" className="p-photo"/>
-          <div>
+          <img src= { login.image === "" ? "assets/person.jpg" : login.image} alt="" className="p-photo"/>
+          <div className="ml-1">
             <div className="mb-1"> { login.code }</div>
-            <div> { login.name }</div>
+            <div className="fs-08"> { login.name }</div>
           </div>
               <IonIcon class="w-3 h-3" icon= { chevronForwardOutline }  slot="icon-only"
                   color= "primary"

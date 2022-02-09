@@ -1,6 +1,6 @@
 import { IonButton, IonInput } from "@ionic/react";
 import { useEffect, useState } from "react"
-import { getData, getData1C, Store } from "../pages/Store";
+import { getData1C, Store } from "../pages/Store";
 import MaskedInput from "../mask/reactTextMask";
 import "./Login.css"
 
@@ -11,8 +11,6 @@ export function Login(props):JSX.Element {
 
     useEffect(()=>{
 
-        info.type = "login"
-
         let sav = localStorage.getItem("croud.login");
         if( sav !== null) {
             setInfo( JSON.parse(sav) )
@@ -22,66 +20,55 @@ export function Login(props):JSX.Element {
         }
     }, [])
 
-    // async function LogIn(){
-    //     let res = await getData1C("Логин", info)
-    //     if(res.Код === 100) {
-    //         Store.dispatch({ type: "auth", auth: true})
-    //         Store.dispatch(res.Данные);
-    //         console.log(res)
-    //         localStorage.setItem("asAdmin.login", info.Логин)
-    //     } else {
-
-    //     }
-    // }
-
+    async function loadSMS( ){
+        console.log(info.code)
+        let res = await getData1C("ПолучитьСМС",{
+            Телефон: info.code
+        })
+        if(res.Код === 100) {
+            console.log(res)
+            info.SMS = res.SMS
+            setInfo(info)
+            setPage( 3 )
+        } 
+    }
 
     function GetPhone():JSX.Element {
 
          useEffect(()=>{
          },[])
-    
-        async function load( ){
-            let res = await getData1C("ПолучитьСМС",{
-                Телефон: info.code
-            })
-            console.log(res)
-            if(res.Код === 100) {
-                info.SMS = res.SMS
-                setInfo(info)
-                setPage( 3 )
-            } 
-        }
-    
+     
         let elem = <>
             <div className="l-content">
-                <div className="l-div">
-                    <b>Введите телефон</b>
-                </div>
-                <div className="l-input">
-                    <div className="ml-1">+7</div>
-                    <MaskedInput
-                        mask={[ ' ','(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-',/\d/, /\d/]}
-                        className="m-input"
-                        autoComplete="off"
-                        placeholder="(___) ___-__-__"
-                        id='1'
-                        type='text'
-                        onChange={(e: any) => {
-                            let st = e.target.value;
-                            info.code = "+7" + st;
-                        }}
-                    />                
-                </div>
-                <div className="ml-1 mr-1 mt-1">
+                <div className="l-div-1">
+                    <div>
+                        Введите телефон
+                    </div>
+                    <div className="l-input mt-1">
+                        <div className="ml-1">+7</div>
+                        <MaskedInput
+                            mask={[ ' ','(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-',/\d/, /\d/]}
+                            className="m-input "
+                            autoComplete="off"
+                            placeholder="(___) ___-__-__"
+                            id='1'
+                            type='text'
+                            onChange={(e: any) => {
+                                let st = e.target.value;
+                                info.code = "+7" + st;
+                            }}
+                        />                
+                    </div>
                     <IonButton
+                        className = "mt-2"
                         expand="block"
-                        color = "warning"
-
+                        fill ="outline"
+                        color = "primary"
                         onClick={() =>{
-                            load()
+                            loadSMS()
                         }}
                     >
-                       Продолжить     
+                        Продолжить     
                     </IonButton>
                 </div>
             </div>
@@ -167,7 +154,6 @@ export function Login(props):JSX.Element {
                 Store.dispatch( res.Данные.person )
                 Store.dispatch( res.Данные.passport )
                 Store.dispatch({type: "auth", auth: true})   
-                console.log( res.Данные.person ) 
             } else {
                 setValue("")
                 setTires("----")
@@ -210,19 +196,13 @@ export function Login(props):JSX.Element {
                             }}
                         />
                     </div>
-
-                {/* <div className="ml-1 mr-1 mt-1">
-                    <IonButton
-                        expand="block"
-                        color = "warning"
-
-                        onClick={() =>{
-                            //load()
-                        }}
-                    >
-                       Продолжить     
-                    </IonButton>
-                </div> */}
+                <div className="ml-4 mt-1 a-link"
+                    onClick={()=>{
+                        loadSMS()
+                    }}
+                >
+                    Забыли пинкод ?
+                </div>
             </div>
         
         </>
@@ -233,17 +213,14 @@ export function Login(props):JSX.Element {
         const [tires, setTires] = useState("----");
         const [value, setValue] = useState( "" )
         const [pin1, setPin1] = useState( "" )
-        const [pin2, setPin2] = useState( "" )
 
         async function load(){
-            console.log(info)
             let res = await getData1C("Регистрация", {
                 Логин:      info 
             } )
             if(res.Код === 100) {
-                Store.dispatch( res.Данные )
-                Store.dispatch({type: "auth", auth: true})
                 localStorage.setItem("croud.login", JSON.stringify(res.Данные))
+                setPage( 1 )
             }
         }
 

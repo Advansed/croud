@@ -5,6 +5,7 @@ import ExploreContainer from '../components/ExploreContainer';
 import { Login } from '../components/Login';
 import { Partners } from '../components/Partners';
 import { Options, Profile } from '../components/Profile';
+import { Projects } from '../components/Projects';
 import './Page.css';
 import { Store } from './Store';
 
@@ -26,11 +27,12 @@ const Page: React.FC = () => {
 
     if( auth )
       switch ( name ) {
-        case "": elem = <></>; break;
-        case "Логин": elem = <Login />; break;
-        case "Личный кабинет": elem = <Options />; break;
-        case "Профиль": elem = <Profile />; break;
-        case "Организации": elem = <Partners />; break;
+        case "":                  elem = <></>; break;
+        case "Логин":             elem = <Login />; break;
+        case "Личный кабинет":    elem = <Options />; break;
+        case "Профиль":           elem = <Profile />; break;
+        case "Организации":       elem = <Partners />; break;
+        case "Проекты":           elem = <Projects />; break;
         default: elem = <></>
       }
     else {
