@@ -103,6 +103,15 @@ const Menu: React.FC = () => {
                 <IonLabel>{label}</IonLabel>
               </IonItem>
             ))}
+              <IonItem lines="none" key={ 1001 }
+                onClick={()=>{
+                  localStorage.removeItem("croud.login")
+                  Store.dispatch({type: "auth", auth: false})
+                }}
+              >
+                <IonIcon slot="start" icon={bookmarkOutline} />
+                <IonLabel> Удалить регистрацию </IonLabel>
+              </IonItem>
         </IonList>
       </IonContent>
     </IonMenu>

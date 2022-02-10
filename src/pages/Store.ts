@@ -1,6 +1,7 @@
 import { combineReducers  } from 'redux'
 import axios from 'axios'
 import { Reducer } from 'react';
+import { constructSharp } from 'ionicons/icons';
 
 var reducers: Array<Reducer<any, any>>;reducers = []
 
@@ -28,6 +29,8 @@ export const i_state = {
         scans:                  [],  
     },   
     projects:                       [],
+    offers:                         [],
+    apps:                           [],
 }
 
 
@@ -139,6 +142,8 @@ const                   rootReducer = combineReducers({
     scans:                     reducers[5],
     passport:                  reducers[6],
     projects:                  reducers[7],
+    offers:                    reducers[8],  
+    apps:                      reducers[9],   
 
 })
 
@@ -212,8 +217,11 @@ async function getPartners(){
     Store.dispatch({ type: "partners", partners: res})
 
     res = await getData1C("Проекты", Store.getState().login)
-    console.log(res)
     Store.dispatch({ type: "projects", projects: res})
+
+    res = await getData1C("Заявки", Store.getState().login)
+    console.log(res);
+    Store.dispatch({ type: "apps", apps: res})
 }
 
 Store.subscribe({num: 1001, type: "auth", func:()=>{

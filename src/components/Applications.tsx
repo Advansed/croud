@@ -1,15 +1,27 @@
 import { IonIcon } from "@ionic/react"
 import { barcodeOutline, cashOutline, listOutline } from "ionicons/icons"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { convertMaskToPlaceholder } from "../mask/src/utilities"
 import { Store } from "../pages/Store"
 
 
 export function Applications():JSX.Element {
-    const [ apps, setApps]   = useState(Store.getState().Apps)
+    const [ apps, setApps ]   = useState(Store.getState().apps)
     const [ param, setParam ] = useState<any>()
+    const [ page,   setPage] = useState( 0 )
     
+    Store.subscribe({num: 11, type: "apps", func: ()=>{
+        setApps( Store.getState().apps );
+    }})
+
+    useEffect(()=>{
+        setApps( Store.getState().apps );
+    },[])
+
     function AppCard(props):JSX.Element {
         const [ info ] = useState( props.info.info )
+
+        console.log(info)
         let elem = <>
                 <div className="borders mt-1 ml-1 mr-1 fs-08"
                 onClick={()=>{
@@ -53,13 +65,13 @@ export function Applications():JSX.Element {
 
     function AppsList():JSX.Element {
         let elem = <></>
-
-        for(let i = 1;i < apps.length;i++){
+        console.log("list")
+        for(let i = 0;i < apps.length;i++){
             elem = <>
                 { elem }
                 <AppCard info={ {
-                    info: apps[i].project,
-                    onClick: ()=>{
+                    info: apps[i].Проект,
+                    setParam: ()=>{
                         setParam( apps[i] )
                     }
                 } }/>
@@ -68,9 +80,10 @@ export function Applications():JSX.Element {
 
         return elem
     }
-    let elem = <>
 
-    </>
-
-    return elem
+    switch(page){
+        case 0 : return <AppsList />
+        default: return <></>
+    }
+    
 }

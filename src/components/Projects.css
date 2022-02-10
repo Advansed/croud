@@ -1,3 +1,7 @@
 .t-area {
     height: 15em
 }
+
+.range-has-pin {
+    padding-top: 0;
+}

@@ -45,7 +45,9 @@ export function Login(props):JSX.Element {
                         Введите телефон
                     </div>
                     <div className="l-input mt-1">
-                        <div className="ml-1">+7</div>
+                        <div className="ml-1 flex fl-center" >
+                            <div>+7</div>
+                        </div>
                         <MaskedInput
                             mask={[ ' ','(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-',/\d/, /\d/]}
                             className="m-input "

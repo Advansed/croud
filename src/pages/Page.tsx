@@ -1,7 +1,7 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import ExploreContainer from '../components/ExploreContainer';
+import { Applications } from '../components/Applications';
 import { Login } from '../components/Login';
 import { Partners } from '../components/Partners';
 import { Options, Profile } from '../components/Profile';
@@ -33,6 +33,7 @@ const Page: React.FC = () => {
         case "Профиль":           elem = <Profile />; break;
         case "Организации":       elem = <Partners />; break;
         case "Проекты":           elem = <Projects />; break;
+        case "Заявки":            elem = <Applications />; break;
         default: elem = <></>
       }
     else {
