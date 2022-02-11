@@ -467,6 +467,7 @@ export function Projects():JSX.Element {
         </>
         return elem
     }
+    
     let items = <></>
     for(let i = 0;i < projects.length;i++){
         items = <>

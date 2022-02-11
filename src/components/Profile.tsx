@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getData1C, Store } from "../pages/Store";
-import { IonButton, IonIcon, IonInput, IonLoading } from "@ionic/react";
+import { IonButton, IonIcon, IonInput, IonLoading, IonRange } from "@ionic/react";
 import { cameraOutline, chevronForwardOutline } from "ionicons/icons";
 import './Profile.css'
 import { useHistory } from "react-router";
@@ -341,6 +341,22 @@ export function   Options():JSX.Element {
       </div>
       <div className="op-item">
           Опции
+      </div>
+      <div className="borders mt-1 mr-1 ml-1">
+        <div>Шаг суммы (торги)</div>    
+        <div className="w-100">
+          <IonRange 
+              min={ 10000 } 
+              max={ 100000 } 
+              pin={true}
+              step={ 10000 }
+              snaps
+              value={ Store.getState().options.Шаг } 
+              onIonChange={e => {
+                Store.dispatch({type: "options", Шаг: e?.detail.value as number})
+              }}
+          />
+        </div>
       </div>
       <div className="op-item flex fl-right">
           <IonButton

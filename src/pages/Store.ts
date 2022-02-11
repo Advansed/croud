@@ -31,6 +31,9 @@ export const i_state = {
     projects:                       [],
     offers:                         [],
     apps:                           [],
+    options:                        {
+        Шаг:                    10000,
+    },  
 }
 
 
@@ -143,7 +146,8 @@ const                   rootReducer = combineReducers({
     passport:                  reducers[6],
     projects:                  reducers[7],
     offers:                    reducers[8],  
-    apps:                      reducers[9],   
+    apps:                      reducers[9], 
+    options:                   reducers[10],  
 
 })
 
