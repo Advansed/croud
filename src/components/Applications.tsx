@@ -1,9 +1,7 @@
 import { IonButton, IonIcon, IonInput, IonRange, IonTextarea } from "@ionic/react"
-import { barcodeOutline, cashOutline, listOutline, optionsOutline } from "ionicons/icons"
+import { cashOutline, listOutline, optionsOutline } from "ionicons/icons"
 import { useEffect, useState } from "react"
-import ReactDaDataBox from "react-dadata-box"
 import MaskedInput from "../mask/reactTextMask"
-import { convertMaskToPlaceholder } from "../mask/src/utilities"
 import { getData1C, Store } from "../pages/Store"
 
 
@@ -19,16 +17,6 @@ export function Applications():JSX.Element {
     useEffect(()=>{
         setApps( Store.getState().apps );
     },[])
-
-    async function offer( apps ){
-        let res = await getData1C("Предложение",{
-            Телефон:    Store.getState().login.code,
-            Заявка:     apps
-        })
-        if(res.Код === 100) {
-            
-        }
-    }
 
     function AppCard(props):JSX.Element {
         const [ info ] = useState( props.info.info.Проект )
@@ -69,7 +57,7 @@ export function Applications():JSX.Element {
                 <div className="flex">
                     <img src={ info.Организация.Картинка === "" ? "assets/org.png"
                         : info.Организация.Картинка    
-                    } className="w-3 h-3"/>
+                    } className="w-3 h-3" alt="Логотип"/>
                     <div className="ml-2">
                         <div className="mt-1"> { info.Организация.Наименование } </div>
                     </div>
@@ -123,24 +111,6 @@ export function Applications():JSX.Element {
 
     function Project1():JSX.Element {
         const [ info ] = useState( param.Проект )
-
-        function SetOrg():JSX.Element {
-            const [upd , setUpd] = useState( 0 )    
-            let elem = <>
-                <div className="borders mt-1 ml-1 mr-1">
-                    <div className="flex">
-                        <img src={ info.Организация.Картинка === "" ? "assets/org.png"
-                            : info.Организация.Картинка    
-                        } className="w-4 h-4"/>
-                        <div className="ml-1">
-                            <div className="fs-08"> { info.Организация.Наименование } </div>
-                        </div>
-                    </div>
-                </div>            
-            </>
-
-            return elem
-        }
 
         function SetProject():JSX.Element {
             let elem = <>
@@ -268,7 +238,45 @@ export function Applications():JSX.Element {
 
     function Project2():JSX.Element {
         const [ info ] = useState( param.Проект )
+        const [ deal, setDeal] = useState({
+            Проект:       param.Проект,
+            Номер:                  "",
+            Дата:                   "",
+            Сумма:                   0,
+            ТекСумма:                0,                  
+        })
 
+        useEffect(()=>{
+                
+            let deals = Store.getState().deals;
+            var ind = deals.findIndex(function(b) { 
+                return b.Проект.Код === info.Код
+            });
+            if(ind >= 0){ 
+                setDeal(deals[ind])
+            }
+
+        },[])
+
+        async function offer(){
+            console.log(deal)
+            let res = await getData1C("СохранитьСделку",{
+                Телефон:    Store.getState().login.code,
+                Сделка:     deal,
+            })
+            if(res.Код === 100) {
+    
+                res = await getData1C("Заявки", Store.getState().login)
+                Store.dispatch({ type: "apps", apps: res})
+
+                deal.Сумма = deal.ТекСумма
+                deal.ТекСумма = 0;
+    
+            }
+            setPage( 0 )
+        }
+    
+    
         function Buttons():JSX.Element {
             let elem  = <>
                 <div className="mt-1 p-div-1">
@@ -286,7 +294,8 @@ export function Applications():JSX.Element {
                             fill="outline"
                             color = "success"
                             onClick ={()=>{
-                               offer( param ) 
+                                //console.log(info.Сумма)
+                               offer() 
                             }}
                         >
                             Предложить
@@ -298,8 +307,19 @@ export function Applications():JSX.Element {
         }
 
         function Offer():JSX.Element {
-            const [value, setValue] = useState( 10000 )
-            let elem = <>
+            const [value, setValue] = useState( deal.Сумма > 0 ? deal.Сумма : 10000 )
+    
+                let elem = <>
+
+                <div className="borders mt-1 ml-1 mr-1">
+                    <div className="flex fl-space fs-2">
+                        <div> Остаток: </div>
+                        <div> 
+                            { new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( param.Остаток  + deal.Сумма )}
+                        </div>
+                    </div>                    
+                </div>
+
                 <div className="borders ml-1 mr-1 mt-1">
                     <div className='flex fl-space'>
                         <div> Сумма </div>    
@@ -314,13 +334,16 @@ export function Applications():JSX.Element {
                         <div className='w-100'>
                             <IonRange 
                                 min={ 10000 } 
-                                max={ info.Сумма } 
+                                max={ param.Остаток + deal.Сумма  } 
                                 pinFormatter={ customFormatter } 
                                 pin={true}
                                 step={ Store.getState().options.Шаг }
                                 snaps
                                 value={ value } 
-                                onIonChange={e => setValue(e.detail.value as number)}
+                                onIonChange={e => {
+                                    setValue(e.detail.value as number)
+                                    deal.ТекСумма = e.detail.value as number
+                                }}
                             />
                         </div>
                         <div className="flex fl-space">
@@ -342,7 +365,7 @@ export function Applications():JSX.Element {
                 <div className="flex">
                     <img src={ info.Организация.Картинка === "" ? "assets/org.png"
                         : info.Организация.Картинка    
-                    } className="w-3 h-3"/>
+                    } className="w-3 h-3" alt="Логотип"/>
                     <div className="ml-2">
                         <div className="mt-1"> { info.Организация.Наименование } </div>
                     </div>

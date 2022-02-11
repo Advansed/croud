@@ -58,7 +58,7 @@ export function   Profile():JSX.Element {
 
       let elem = <>
         <div className="p-div-1 flex fl-space">
-          <img src = { login.image === "" ? "assets/person.jpg" : login.image }  className="w-4 h-4"/>
+          <img src = { login.image === "" ? "assets/person.jpg" : login.image }  className="w-4 h-4" alt="Фото"/>
           <div >
             <div>{ login.code }</div>
           </div>
@@ -329,7 +329,7 @@ export function   Options():JSX.Element {
         }}
       >
         <div className="flex fl-space">
-          <img src= { login.image === "" ? "assets/person.jpg" : login.image} alt="" className="p-photo"/>
+          <img src= { login.image === "" ? "assets/person.jpg" : login.image} alt="Фото" className="p-photo"/>
           <div className="ml-1">
             <div className="mb-1"> { login.code }</div>
             <div className="fs-08"> { login.name }</div>

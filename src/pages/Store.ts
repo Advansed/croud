@@ -31,6 +31,7 @@ export const i_state = {
     projects:                       [],
     offers:                         [],
     apps:                           [],
+    deals:                          [],
     options:                        {
         Шаг:                    10000,
     },  
@@ -147,7 +148,8 @@ const                   rootReducer = combineReducers({
     projects:                  reducers[7],
     offers:                    reducers[8],  
     apps:                      reducers[9], 
-    options:                   reducers[10],  
+    deals:                     reducers[10],
+    options:                   reducers[11],  
 
 })
 
@@ -224,8 +226,11 @@ async function getPartners(){
     Store.dispatch({ type: "projects", projects: res})
 
     res = await getData1C("Заявки", Store.getState().login)
-    console.log(res);
     Store.dispatch({ type: "apps", apps: res})
+
+    res = await getData1C("Сделки", Store.getState().login)
+    console.log(res);
+    Store.dispatch({ type: "deals", deals: res})
 }
 
 Store.subscribe({num: 1001, type: "auth", func:()=>{
