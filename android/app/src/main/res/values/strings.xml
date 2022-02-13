@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ГосКонтракт</string>
+    <string name="title_activity_main">ГосКонтракт</string>
+    <string name="package_name">anr.goskontract</string>
+    <string name="custom_url_scheme">anr.goskontract</string>
+</resources>

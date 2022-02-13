@@ -6,6 +6,7 @@ import { Login } from '../components/Login';
 import { Partners } from '../components/Partners';
 import { Options, Profile } from '../components/Profile';
 import { Projects } from '../components/Projects';
+import { Sentences } from '../components/Sentences';
 import './Page.css';
 import { Store } from './Store';
 
@@ -34,6 +35,9 @@ const Page: React.FC = () => {
         case "Организации":       elem = <Partners />; break;
         case "Проекты":           elem = <Projects />; break;
         case "Заявки":            elem = <Applications />; break;
+        case "Сделки":            elem = <Applications />; break;
+        case "Предложения":       elem = <Sentences />; break;
+        case "Завершенные":       elem = <></>; break;
         default: elem = <></>
       }
     else {

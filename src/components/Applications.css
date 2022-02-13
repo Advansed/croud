@@ -1,0 +1,26 @@
+
+.a-deal {
+    display: flex;
+    position: absolute;
+    align-items: center;
+    /* background-color: rgba(15, 54, 3, 0.8); */
+    background-color: white;
+    border: 1px solid ;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: blue;
+    font-size: 17px;
+    font-weight: 500;
+    height: 36px;
+    justify-content: center;
+    line-height: normal;
+    text-align: center;
+    text-decoration: none;
+    min-width: 36px;
+    opacity: 75;
+    right: 2%;
+    bottom: 5%;
+    padding: 0 6px;
+    white-space: nowrap;
+
+}

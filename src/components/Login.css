@@ -1,29 +1,21 @@
 .l-content {
-    height: 60%;
     width: 100%;
-
+    height: 100%;
+    background-color: lightgrey;
 }
 
 .l-input {
     width: 90%;
-    margin-left: 1em;
-    margin-right: 1em;
     display: flex;
 }
 
-.l-div{
-    width: 90%;
-    margin-top: 45%;
-    margin-bottom: 1em;
-    text-align: center;
-}
 .l-div-1{
-    border: 1px solid silver;
+    /* border: 1px solid silver; */
     border-radius: 0.5em;
     padding: 1em;
-    margin-top: 45%;
-    margin-left: 10%;
-    margin-right: 10%;
+    background-color: white;
+    margin-left: 1em;
+    margin-right: 1em;
 }
 
 .l-button {
@@ -32,28 +24,20 @@
 }
 
 .lg-input {
-    width: 60% !important;
-    /* display: flex; */
-    margin: 0 auto;
-    position: relative;
-    height: 3em;
-    border-radius: 10px;
-    border: 1px solid silver;
+    position: absolute;
+    left: 0.7em;
+    top: 0;
 }
 
-.lg-div-1 {
-    display: flex;
-    position: absolute;
-    top: 0;
-    right: 1em;
+.lg-SMS {
+
     letter-spacing: 1em;
     justify-content: space-between;
-    font-size: 24px;
-    padding-left: 1em;
+    font-size: 2em;
     font-family: monospace;
-    padding-top: 0.2em;
-    
+
 }
+
 
 .lg-sms-input {
     position: absolute;
@@ -63,7 +47,7 @@
     margin-left: 1em;
     background: transparent;
     letter-spacing: 1em;
-    font-size: 24px;
+    font-size: 2em;
     font-family: monospace;
     /* text-align: center; */
     padding-top: 5px;

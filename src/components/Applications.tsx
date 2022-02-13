@@ -3,14 +3,15 @@ import { cashOutline, listOutline, optionsOutline } from "ionicons/icons"
 import { useEffect, useState } from "react"
 import MaskedInput from "../mask/reactTextMask"
 import { getData1C, Store } from "../pages/Store"
+import './Applications.css'
 
 
 export function Applications():JSX.Element {
     const [ apps, setApps ]   = useState(Store.getState().apps)
     const [ param, setParam ] = useState<any>()
-    const [ page,   setPage] = useState( 0 )
+    const [ page,   setPage]  = useState( 0 )
     
-    Store.subscribe({num: 11, type: "apps", func: ()=>{
+    Store.subscribe({num: 21, type: "apps", func: ()=>{
         setApps( Store.getState().apps );
     }})
 
@@ -20,7 +21,31 @@ export function Applications():JSX.Element {
 
     function AppCard(props):JSX.Element {
         const [ info ] = useState( props.info.info.Проект )
+        const [ deal, setDeal] = useState<any>()
         const [ buts , setButs] = useState( false )
+
+        Store.subscribe({num: 13, type: "deals", func: ()=>{
+            let deals = Store.getState().deals;
+            var ind = deals.findIndex(function(b) { 
+                return b.Проект.Код === info.Код
+            });
+            if(ind >= 0){ 
+                setDeal(deals[ind])
+            } else setDeal(undefined)
+
+        }})
+
+        useEffect(()=>{
+
+            let deals = Store.getState().deals;
+            var ind = deals.findIndex(function(b) { 
+                return b.Проект.Код === info.Код
+            });
+            if(ind >= 0){ 
+                setDeal(deals[ind])
+            }
+        
+        }, [])
 
         let elem = <>
             <div className="borders mt-1 ml-1 mr-1 fs-08"
@@ -54,6 +79,9 @@ export function Applications():JSX.Element {
                     </div>    
 
                 </div>
+                <div className={ deal === undefined ? "hidden" : "a-deal" }>
+                    <b>{ new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( deal?.Сумма ) } </b>                                      
+                </div>
                 <div className="flex">
                     <img src={ info.Организация.Картинка === "" ? "assets/org.png"
                         : info.Организация.Картинка    
@@ -78,7 +106,7 @@ export function Applications():JSX.Element {
                     <div className="w-3 h-3 flex fl-center">
                         <IonIcon icon= { cashOutline } color="primary" className="w-2 h-2"/>
                     </div>
-                    <div className="fs-2 flex fl-center w-100"> 
+                    <div className="fs-2 flex w-100"> 
                         <b>
                             { new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( info.Сумма ) }
                         </b> 
@@ -242,6 +270,8 @@ export function Applications():JSX.Element {
             Проект:       param.Проект,
             Номер:                  "",
             Дата:                   "",
+            Срок:           param.Срок, 
+            Процент:     param.Процент,
             Сумма:                   0,
             ТекСумма:                0,                  
         })
@@ -254,6 +284,8 @@ export function Applications():JSX.Element {
             });
             if(ind >= 0){ 
                 setDeal(deals[ind])
+                console.log(deals[ind])
+                console.log(param)
             }
 
         },[])
@@ -269,46 +301,49 @@ export function Applications():JSX.Element {
                 res = await getData1C("Заявки", Store.getState().login)
                 Store.dispatch({ type: "apps", apps: res})
 
-                deal.Сумма = deal.ТекСумма
-                deal.ТекСумма = 0;
+                res = await getData1C("Сделки", Store.getState().login)
+                Store.dispatch({ type: "deals", deals: res})
     
             }
-            setPage( 0 )
         }
     
     
-        function Buttons():JSX.Element {
-            let elem  = <>
-                <div className="mt-1 p-div-1">
-                    <div className="flex fl-space" >
-                        <IonButton
-                            fill="outline"
-                            color = "warning"
-                            onClick ={()=>{
-                                setPage( 0 )
-                            }}
-                        >
-                            Вернуться
-                        </IonButton>
-                        <IonButton
-                            fill="outline"
-                            color = "success"
-                            onClick ={()=>{
-                                //console.log(info.Сумма)
-                               offer() 
-                            }}
-                        >
-                            Предложить
-                        </IonButton>
-                    </div>
-                </div>            
-            </>
-            return elem
-        }
 
         function Offer():JSX.Element {
+
             const [value, setValue] = useState( deal.Сумма > 0 ? deal.Сумма : 10000 )
-    
+
+            function Buttons():JSX.Element {
+                let elem  = <>
+                    <div className="mt-1 p-div-1">
+                        <div className="flex fl-space" >
+                            <IonButton
+                                fill="outline"
+                                color = "warning"
+                                onClick ={()=>{
+                                    setPage( 0 )
+                                }}
+                            >
+                                Вернуться
+                            </IonButton>
+                            <IonButton
+                                fill="outline"
+                                color = { value === 0 ? "danger" : "success"}
+                                onClick ={()=>{
+                                    //console.log(info.Сумма)
+                                   offer()
+                                   setPage( 0 )
+
+                                }}
+                            >
+                                { value === 0 ? "Отменить" : "Предложить"}
+                            </IonButton>
+                        </div>
+                    </div>            
+                </>
+                return elem
+            }
+                
                 let elem = <>
 
                 <div className="borders mt-1 ml-1 mr-1">
@@ -333,7 +368,7 @@ export function Applications():JSX.Element {
                     <div>
                         <div className='w-100'>
                             <IonRange 
-                                min={ 10000 } 
+                                min={ 0 } 
                                 max={ param.Остаток + deal.Сумма  } 
                                 pinFormatter={ customFormatter } 
                                 pin={true}
@@ -350,12 +385,13 @@ export function Applications():JSX.Element {
                             <div>Процент</div>
                             <div> 
                                 <b>
-                                    { new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( value * param.Срок * (param.Процент / 100) ) }                            
+                                    { new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( value * deal.Срок * (deal.Процент / 100) ) }                            
                                 </b>
                             </div>
                         </div>
                     </div>
                 </div>
+                <Buttons />
             </>
             return elem
         } 
@@ -394,7 +430,6 @@ export function Applications():JSX.Element {
                 </div>
             </div> 
             <Offer />
-            <Buttons />
         </>
         return elem
     }

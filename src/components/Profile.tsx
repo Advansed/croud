@@ -82,7 +82,7 @@ export function   Profile():JSX.Element {
       let elem = <>
         <div>
             <div  className = { edit ? "" : "hidden" } >
-              <div>
+              <div className="ml-1 mr-1">
                 <ReactDadataBox 
                   token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
                   type ="fio" 
@@ -94,7 +94,7 @@ export function   Profile():JSX.Element {
                     person.Фамилия  = e?.data.surname
                     person.Отчество = e?.data.patronymic
                       
-                    setUpd(upd + 1)
+                    setEdit(!edit)
                 }}
                 />
               </div>
@@ -128,7 +128,7 @@ export function   Profile():JSX.Element {
       let elem = <>
         <div className="mt-1">
             <div  className = { edit ? "" : "hidden" } >
-              <div>
+              <div className = "ml-1 mr-1">
                 <ReactDadataBox 
                     token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
                     type ="email" 

@@ -1,4 +1,4 @@
-import { IonButton, IonInput } from "@ionic/react";
+import { IonButton, IonInput, IonLoading } from "@ionic/react";
 import { useEffect, useState } from "react"
 import { getData1C, Store } from "../pages/Store";
 import MaskedInput from "../mask/reactTextMask";
@@ -8,6 +8,7 @@ import "./Login.css"
 export function Login(props):JSX.Element {
     const [ page, setPage] = useState( 0 ) 
     const [ info, setInfo] = useState<any>( Store.getState().login )
+    const [ load, setLoad] = useState(false)
 
     useEffect(()=>{
 
@@ -22,6 +23,7 @@ export function Login(props):JSX.Element {
 
     async function loadSMS( ){
         console.log(info.code)
+        setLoad(true)
         let res = await getData1C("ПолучитьСМС",{
             Телефон: info.code
         })
@@ -31,6 +33,7 @@ export function Login(props):JSX.Element {
             setInfo(info)
             setPage( 3 )
         } 
+        setLoad(false)
     }
 
     function GetPhone():JSX.Element {
@@ -40,11 +43,14 @@ export function Login(props):JSX.Element {
      
         let elem = <>
             <div className="l-content">
+                <div className="h-20">
+
+                </div>
                 <div className="l-div-1">
                     <div>
                         Введите телефон
                     </div>
-                    <div className="l-input mt-1">
+                    <div className="l-input mt-1 fs-2">
                         <div className="ml-1 flex fl-center" >
                             <div>+7</div>
                         </div>
@@ -78,66 +84,66 @@ export function Login(props):JSX.Element {
         return elem
     }
 
-    function GetSMS():JSX.Element {
+    function MyInput(props):JSX.Element {
         const [tires, setTires] = useState("----");
         const [value, setValue] = useState( "" )
+        let elem = <>
+            <div className="borders mt-1 " style={{ width: "13em", height: "3em"}}>
+                <div className="w-100 h-100 flex  fl-right">
+                    <span className="lg-SMS">{ tires }</span>
+                </div>
+                <div className="lg-input lg-SMS">
+                    <IonInput 
+                        value= { value }
+                        onIonChange= {(e)=>{
+                            let val = e.detail.value as string;
+                            setValue( val )
+                            switch (val?.length) {
+                                case 0:     setTires("----");break;       
+                                case 1:     setTires("---");break;       
+                                case 2:     setTires("--");break;       
+                                case 3:     setTires("-");break;       
+                                case 4:     setTires("");break;       
+                                default:    setTires("----");break;       
+                            }
+                            if(val?.length === 4) {
+                                props.onText(val)
+                                
+                                setTires("----") ;
+                                setValue(""); 
+                                    
+                            }
+                }}
+                    />
+                </div>
+            </div>
+        </>
+        return elem
+    }
+
+    function GetSMS():JSX.Element {
 
         let elem = <>
             <div className="l-content">
-                <div className="l-div">
+                <div className = "h-20"></div>
+                <div className="l-div-1">
                     <b>Введите код из SMS</b>
-                </div>
+                    <div className="flex fl-center">
+                        <MyInput onText ={(val)=>{
+                            
+                            let SMS = info.SMS
+    
+                            if(SMS === val) {
+                                setPage( 4 )
+                            }
 
-                    <div className="lg-input">
-                        <div className="lg-div-1">
-                            <span></span>
-                            { tires }
-                        </div>
-                        <IonInput
-                            className = "lg-sms-input"
-                            type = "text"
-                            inputMode = "numeric"
-                            maxlength = { 4 }
-                            value = { value }
-                            onIonChange = {(e)=>{
-                                let val = e.detail.value as string;
-                                setValue( val )
-                                switch (val?.length) {
-                                    case 0:     setTires("----");break;       
-                                    case 1:     setTires("---");break;       
-                                    case 2:     setTires("--");break;       
-                                    case 3:     setTires("-");break;       
-                                    case 4:     setTires("");break;       
-                                    default:    setTires("----");break;       
-                                }
-                                if(val?.length === 4) {
-                                    let SMS = info.SMS
-
-                                    if(SMS === val) {
-                                        setPage( 4 )
-                                    } else {
-                                        setTires("----") ;
-                                        setValue(""); 
-                                    }
-                                        
-                                }
-                                
-                            }}
-                        />
+                        }} />
                     </div>
-
-                {/* <div className="ml-1 mr-1 mt-1">
-                    <IonButton
-                        expand="block"
-                        color = "warning"
-
-                        onClick={() =>{
-                            //load()
-                        }}
-                    >
-                       Продолжить     
-                    </IonButton>
-                </div> */}
+                    <div className="mt-1 a-right">
+                        <span className="a-link">Отправить СМС повторно</span>
+                    </div>
+                    
+                </div>
             </div>
         
         </>
@@ -145,9 +151,7 @@ export function Login(props):JSX.Element {
     }
 
     function PinCode():JSX.Element {
-        const [tires, setTires] = useState("----");
-        const [value, setValue] = useState( "" )
-
+        
         async function load(){
 
             let res = await getData1C("Авторизация", info )
@@ -156,54 +160,29 @@ export function Login(props):JSX.Element {
                 Store.dispatch( res.Данные.person )
                 Store.dispatch( res.Данные.passport )
                 Store.dispatch({type: "auth", auth: true})   
-            } else {
-                setValue("")
-                setTires("----")
-            }
+            } 
         }
 
         let elem = <>
             <div className="l-content">
-                <div className="l-div">
+            <div className = "h-20"></div>
+                <div className="l-div-1">
                     <b>Введите ПинКод</b>
-                </div>
+                    <div className="flex fl-center">
+                        <MyInput onText ={(val)=>{
+                            
+                            info.pincode = val;
+                            load()            
 
-                    <div className="lg-input">
-                        <div className="lg-div-1">
-                            <span></span>
-                            { tires }
-                        </div>
-                        <IonInput
-                            className = "lg-sms-input"
-                            type = "password"
-                            inputMode = "numeric"
-                            maxlength = { 4 }
-                            value = { value }
-                            onIonChange = {(e)=>{
-                                let val = e.detail.value as string;
-                                setValue( val )
-                                switch (val?.length) {
-                                    case 0:     setTires("----");break;       
-                                    case 1:     setTires("---");break;       
-                                    case 2:     setTires("--");break;       
-                                    case 3:     setTires("-");break;       
-                                    case 4:     setTires("");break;       
-                                    default:    setTires("----");break;       
-                                }
-                                if(val?.length === 4) {
-                                    info.pincode = val;
-                                    load()            
-                                }
-                                
-                            }}
-                        />
+                        }} />
                     </div>
-                <div className="ml-4 mt-1 a-link"
-                    onClick={()=>{
-                        loadSMS()
-                    }}
-                >
-                    Забыли пинкод ?
+                    <div className="ml-4 mt-1 a-link"
+                        onClick={()=>{
+                            loadSMS()
+                        }}
+                    >
+                        Забыли пинкод ?
+                    </div>                    
                 </div>
             </div>
         
@@ -212,8 +191,6 @@ export function Login(props):JSX.Element {
     }
 
     function SetPinCode():JSX.Element {
-        const [tires, setTires] = useState("----");
-        const [value, setValue] = useState( "" )
         const [pin1, setPin1] = useState( "" )
 
         async function load(){
@@ -228,47 +205,20 @@ export function Login(props):JSX.Element {
 
        let elem = <>
             <div className="l-content">
-                <div className="l-div">
+                <div className = "h-20"></div>
+                <div className="l-div-1">
                     <b> { pin1 === "" ? "Придумайте ПинКод" : "Повторите ПинКод"} </b>
-                </div>
-
-                <div className="lg-input">
-                    <div className="lg-div-1">
-                            <span></span>
-                            { tires }
+                    <div className="flex fl-center">
+                        <MyInput onText ={(val)=>{
+                            if(pin1 === "" ) {
+                                setPin1( val )
+                            } else
+                            if( pin1 === val) {
+                                info.pincode = pin1;
+                                load()
+                            }                 
+                        }}/>
                     </div>
-                    <IonInput
-                        className = "lg-sms-input"
-                            type = "password"
-                            inputMode = "numeric"
-                            maxlength = { 4 }
-                            value = { value }
-                            onIonChange = {(e)=>{
-                                let val = e.detail.value as string;
-                                setValue( val )
-                                switch (val?.length) {
-                                    case 0:     setTires("----");break;       
-                                    case 1:     setTires("---");break;       
-                                    case 2:     setTires("--");break;       
-                                    case 3:     setTires("-");break;       
-                                    case 4:     setTires("");break;       
-                                    default:    setTires("----");break;       
-                                }
-                                if(val?.length === 4) {
-                                    if(pin1 === "" ) {
-                                        setPin1( val )
-                                        setValue("")
-                                        setTires("----")
-                                    } else
-                                    if( pin1 === val) {
-                                        info.pincode = pin1;
-                                        load()
-                                    }
-                                        
-                                }
-                                
-                        }}
-                    />
                 </div>
             </div>
         </>
@@ -284,6 +234,10 @@ export function Login(props):JSX.Element {
         case 4 : elem = <SetPinCode />; break;
         default : elem = <></>;
     }
-    return elem
+    return <>
+        <IonLoading message= "Подождите..." isOpen= { load }/>
+        { elem }
+    </>
 }
+
 

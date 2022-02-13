@@ -1,6 +1,6 @@
 
 import { IonButton, IonIcon, IonInput, IonRange, IonTextarea } from '@ionic/react'
-import { addCircleOutline, barcodeOutline, cashOutline, listOutline } from 'ionicons/icons'
+import { addCircleOutline, barcodeOutline, cashOutline, chevronDownOutline, chevronUpOutline, listOutline } from 'ionicons/icons'
 import { useEffect, useState } from 'react'
 import ReactDaDataBox from 'react-dadata-box'
 import { getData1C, Store } from '../pages/Store'
@@ -13,8 +13,11 @@ export function Projects():JSX.Element {
     const [param, setParam] = useState<any>()
     const [page, setPage] = useState( 0 )
 
+    Store.subscribe({num: 31, type: "projects", func: ()=>{
+        setProjects(Store.getState().projects)
+    }})
+
     useEffect(()=>{
-        console.log(Store.getState().projects)
         setProjects(Store.getState().projects)
     },[])
 
@@ -81,11 +84,7 @@ export function Projects():JSX.Element {
             const [edit, setEdit] = useState( false )
             const [upd , setUpd] = useState( 0 )    
             let elem = <>
-                <div className={ edit ? "" : "hidden"}
-                    onDoubleClick = {()=>{
-                        setEdit(!edit);
-                    }}
-                >
+                <div className={ edit ? "mt-1 ml-1 mr-1" : "hidden"}>
                         <ReactDaDataBox 
                             token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
                             placeholder = "ИНН, Наименование"
@@ -118,10 +117,10 @@ export function Projects():JSX.Element {
                         setEdit(!edit)
                     }}
                 >
-                    <div className="flex">
+                    <div className={ "flex" }>
                         <img src={ info.Организация.Картинка === "" ? "assets/org.png"
                             : info.Организация.Картинка    
-                        } className="w-4 h-4"/>
+                        } alt="Логотип" className="w-4 h-4"/>
                         <div className="ml-1">
                             <div className="fs-08"> { info.Организация.Наименование } </div>
                         </div>
@@ -277,9 +276,22 @@ export function Projects():JSX.Element {
 
     function ProjectCard(props):JSX.Element {
         const [ info ] = useState( props.info.info )
+        const [ apps, setApps] = useState<any>()
         const [ buts, setButs ] = useState(false)
+
+        useEffect(()=>{
+            let apps = Store.getState().apps;
+            var ind = apps.findIndex(function(b) { 
+                return b.Проект.Код === info.Код
+            });
+            if(ind >= 0){ 
+                setApps( apps[ind] )
+            }
+            
+        },[info])
+
         let elem = <>
-                    <div className="borders mt-1 ml-1 mr-1 fs-08"
+            <div className="borders mt-1 ml-1 mr-1 fs-08"
                 onClick={()=>{
                     setButs(!buts)
                 }}
@@ -300,16 +312,18 @@ export function Projects():JSX.Element {
                         color   = "success"
                         onClick={()=>{
                             props.info.setParam( info )
-                            setPage(2);
+                            apps === undefined ? setPage(2) : setPage(3);
                         }}
                     >
-                       Заявить     
+                       { apps === undefined ? "Заявить" : "Предложения"}
                     </IonButton>
                 </div>    
+                <div className= { !buts ? "hidden" : "flex fl-center"}><IonIcon icon={ chevronDownOutline }/></div>
+                <div className= { !buts ? "flex fl-center" : "hidden"}><IonIcon icon={ chevronUpOutline }/></div>
                 <div className="flex">
                     <img src={ info.Организация.Картинка === "" ? "assets/org.png"
                         : info.Организация.Картинка    
-                    } className="w-3 h-3"/>
+                    } alt="Логотип" className="w-3 h-3"/>
                     <div className="ml-2">
                         <div className="mt-1"> { info.Организация.Наименование } </div>
                     </div>
@@ -364,7 +378,7 @@ export function Projects():JSX.Element {
                 <div className="flex">
                     <img src={ info.Организация.Картинка === "" ? "assets/org.png"
                         : info.Организация.Картинка    
-                    } className="w-3 h-3"/>
+                    } alt="Логотип" className="w-3 h-3"/>
                     <div className="ml-2">
                         <div className="mt-1"> { info.Организация.Наименование } </div>
                     </div>
@@ -468,6 +482,118 @@ export function Projects():JSX.Element {
         return elem
     }
     
+    function Sentence():JSX.Element {
+        const [ info ] = useState( param )
+        const [ deals, setDeals] = useState<any>([])
+        const [ detail, setDetail] = useState(false)
+
+        useEffect(()=>{
+            let dls = Store.getState().deals;
+            let jarr: any = [];
+            info.Собрано = 0
+            dls.forEach(elem => {
+                if(elem.Проект.Код === info.Код){
+                    jarr = [...jarr, elem]
+                    info.Собрано = info.Собрано + elem.Сумма
+                }
+                
+            });
+
+            setDeals( jarr )
+            
+        },[info])
+
+        async function accept(){
+            let res = await getData1C("ПринятьПредложения", {
+                Телефон:    Store.getState().login.code,
+                Проект:     info,       
+            })
+            if(res.Код === 100) {
+
+                res = await getData1C("Проекты", Store.getState().login)
+                Store.dispatch({ type: "projects", projects: res})            
+
+                res = await getData1C("Сделки", Store.getState().login)
+                Store.dispatch({ type: "deals", deals: res})            
+            }
+        }
+        let elem = <>
+            <div className="borders ml-1 mr-1 mt-1"
+                onClick = {()=>{
+                    setDetail(!detail)
+                }}
+            >
+                <div className="flex fl-space fs-1">
+                    <div>Требуемая сумма</div>
+                    <div>
+                        <b>{ new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( info.Сумма ) }</b>
+                    </div>
+                </div>
+                <div className="flex fl-space mt-1">
+                    <div>Собрано</div>
+                    <div>
+                        <b>{ new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( info.Собрано ) }</b>
+                    </div>
+                </div>
+                <div className="flex fl-space mt-1">
+                    <div>Наполненность</div>
+                    <div>
+                        <b> { (info.Собрано * 100 / info.Сумма).toFixed(2)  } { " %"}</b>
+                    </div>
+                </div>
+                <div className= { detail ? "hidden" : "flex fl-center"}><IonIcon icon={ chevronDownOutline }/></div>
+                <div className= { detail ? "flex fl-center" : "hidden"}><IonIcon icon={ chevronUpOutline }/></div>
+                <div className={ detail ? "" : "hidden"}>
+                    {
+                        deals.map((e)=>{
+                            return <>
+                                <div className="borders mt-1">
+                                <div className = "flex fl-space">
+                                        <img src = { e.Пользователь.Картинка === "" ? "assets/person.jpg" : e.Пользователь.Картинка }  className="w-3 h-3" alt="Фото"/>
+                                        <div className="ml-1 fs-09">
+                                            <div>{ e.Пользователь.Код }</div>
+                                            <div>{ e.Пользователь.Наименование }</div>
+                                        </div>
+                                    </div>
+                                    <div className = "flex fl-space mt-1 fs-12">
+                                        <div>{ "Сумма:" }</div>
+                                        <div className="a-right">
+                                            <b>{ new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format( e.Сумма ) }</b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        })
+                    }
+                </div>
+            </div>
+            <div className="borders ml-1 mt-1 mr-1">
+                <div className={ "flex fl-space" }>
+                    <IonButton 
+                        fill    = "outline"
+                        color   = "warning"
+                        onClick={()=>{
+                            setPage( 0 );
+                        }}
+                    >
+                        Вернуться     
+                    </IonButton>
+                    <IonButton 
+                        fill    = "outline"
+                        color   = "success"
+                        onClick={()=>{
+                            accept()
+                        }}
+                    >
+                        Принять
+                    </IonButton>
+                </div>    
+            </div>    
+        </>
+
+        return elem
+    }
+
     let items = <></>
     for(let i = 0;i < projects.length;i++){
         items = <>
@@ -492,6 +618,7 @@ export function Projects():JSX.Element {
         case 0: return elem;
         case 1: return <Project />;
         case 2: return <Apps />;
+        case 3: return <Sentence />;
         default: return elem;
     }
     

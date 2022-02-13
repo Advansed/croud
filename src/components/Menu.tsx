@@ -10,8 +10,9 @@ import {
   IonNote,
 } from '@ionic/react';
 
-import { useLocation } from 'react-router-dom';
-import { archiveOutline, archiveSharp, bookmarkOutline, heartOutline, heartSharp, mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, trashOutline, trashSharp, warningOutline, warningSharp } from 'ionicons/icons';
+import { useLocation, useHistory } from 'react-router-dom';
+import { briefcaseOutline, bookmarkOutline, mailOutline, mailSharp, briefcaseSharp, mailUnreadOutline
+  , mailUnreadSharp, mailOpenOutline, mailOpenSharp, serverOutline, serverSharp, saveOutline, saveSharp } from 'ionicons/icons';
 import './Menu.css';
 import { useState } from 'react';
 import { Store } from '../pages/Store'
@@ -25,48 +26,49 @@ interface AppPage {
 
 const appPages: AppPage[] = [
   {
+    title: 'Проекты',
+    url: '/page/Проекты',
+    iosIcon: briefcaseOutline,
+    mdIcon: briefcaseSharp
+  },
+  {
     title: 'Заявки',
     url: '/page/Заявки',
     iosIcon: mailOutline,
     mdIcon: mailSharp
   },
   {
-    title: 'Проекты',
-    url: '/page/Проекты',
-    iosIcon: paperPlaneOutline,
-    mdIcon: paperPlaneSharp
-  },
-  {
     title: 'Предложения',
-    url: '/page/Favorites',
-    iosIcon: heartOutline,
-    mdIcon: heartSharp
+    url: '/page/Предложения',
+    iosIcon: mailUnreadOutline,
+    mdIcon: mailUnreadSharp
   },
   {
     title: 'Завершенные',
-    url: '/page/Archived',
-    iosIcon: archiveOutline,
-    mdIcon: archiveSharp
+    url: '/page/Завершенные',
+    iosIcon: mailOpenOutline,
+    mdIcon: mailOpenSharp
   },
   {
     title: 'Организации',
     url: '/page/Организации',
-    iosIcon: trashOutline,
-    mdIcon: trashSharp
+    iosIcon: serverOutline,
+    mdIcon: serverSharp
   },
   {
     title: 'Профиль',
     url: '/page/Личный кабинет',
-    iosIcon: warningOutline,
-    mdIcon: warningSharp
+    iosIcon: saveOutline,
+    mdIcon: saveSharp
   }
 ];
 
-const labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
+const labels = ['Новости', 'Партнеры', 'Контакты', 'О нас'];
 
 const Menu: React.FC = () => {
   const [auth, setAuth] = useState( Store.getState().auth );
   const location = useLocation();
+  const hist = useHistory();
 
   Store.subscribe({num: 10, type: "auth", func: ()=>{
     setAuth( Store.getState().auth )
@@ -94,7 +96,7 @@ const Menu: React.FC = () => {
         </IonList>
 
         <IonList id="labels-list">
-          <IonListHeader>Labels</IonListHeader>
+          <IonListHeader>Разное</IonListHeader>
           {
             !auth ? <></> :
             labels.map((label, index) => (
@@ -103,16 +105,22 @@ const Menu: React.FC = () => {
                 <IonLabel>{label}</IonLabel>
               </IonItem>
             ))}
+            <IonMenuToggle key={1001} autoHide={false}>
               <IonItem lines="none" key={ 1001 }
                 onClick={()=>{
                   localStorage.removeItem("croud.login")
                   Store.dispatch({type: "auth", auth: false})
+                  hist.push("Заявки")
                 }}
               >
                 <IonIcon slot="start" icon={bookmarkOutline} />
                 <IonLabel> Удалить регистрацию </IonLabel>
               </IonItem>
+            </IonMenuToggle>
         </IonList>
+        <div>
+          Версия 10.2
+        </div>
       </IonContent>
     </IonMenu>
   );

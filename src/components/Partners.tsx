@@ -108,6 +108,7 @@ export function Partners():JSX.Element {
                         setEdit(!edit);
                     }}
                 >
+                    <div className="ml-1 mr-1 w-100">
                         <ReactDadataBox 
                             token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
                             placeholder = "ИНН, Наименование"
@@ -125,6 +126,7 @@ export function Partners():JSX.Element {
                                 setEdit(!edit)
                             }} 
                         />
+                    </div>
                 </div>
                 <div className={ "p-div-1" }
                     onClick = {()=>{
@@ -168,11 +170,8 @@ export function Partners():JSX.Element {
             const [bank ] = useState( org1.Банк )
 
             let elem = <>
-                <div className={ edit ? "p-item mt-2" : "hidden"}
-                    onDoubleClick = {()=>{
-                        setEdit(!edit);
-                    }}
-                >
+                <div className={ edit ? "p-item mt-2" : "hidden"}>
+                    <div className="w-100 ml-1 mr-1">
                         <ReactDadataBox 
                             token="23de02cd2b41dbb9951f8991a41b808f4398ec6e" 
                             placeholder = "БИК, Наименование"
@@ -183,6 +182,7 @@ export function Partners():JSX.Element {
                                 bank.КоррСчет = e.data.correspondent_account
                                 setEdit(!edit)
                             }} />
+                    </div>
                 </div>
                 <div className={ "p-div-1" }
                     onClick = {()=>{
@@ -253,7 +253,7 @@ export function Partners():JSX.Element {
             <SetBank />
             <SetScan />
             <div className="mt-1 p-div-1">
-                <div className="flex fl-space mr-1 ml-1" >
+                <div className="flex fl-space" >
                     <IonButton
                         fill="outline"
                         color = "warning"

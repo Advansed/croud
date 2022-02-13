@@ -159,6 +159,8 @@ export const URL1C = "https://marketac.ru:49002/croud/hs/API/V1/"
 
 export const URL = "https://marketac.ru:49002/node/"
 
+//export const URL1C = "https://46.48.133.250:49002/croud/hs/API/V1/"
+
 export async function   getDatas(){
 }
 
@@ -219,18 +221,23 @@ return res
 
 async function getPartners(){
 
+    console.log("ОРганизации")
     let res = await getData1C("Организации", Store.getState().login)
     Store.dispatch({ type: "partners", partners: res})
 
+    console.log("Проекты")
     res = await getData1C("Проекты", Store.getState().login)
     Store.dispatch({ type: "projects", projects: res})
 
+    console.log("Заявки")
     res = await getData1C("Заявки", Store.getState().login)
     Store.dispatch({ type: "apps", apps: res})
 
+    console.log("Сделки")
     res = await getData1C("Сделки", Store.getState().login)
-    console.log(res);
     Store.dispatch({ type: "deals", deals: res})
+
+    console.log("Конец")
 }
 
 Store.subscribe({num: 1001, type: "auth", func:()=>{
